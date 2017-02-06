@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音乐播放器</title>
+    <link href="css/style.css" rel="stylesheet">
+    <script src="script/script.js"></script>
+</head>
+<body>
+<div id="container">
+    <div class="audio">
+        <audio id="myAudio">
+            Audio player not available.
+        </audio>
+    </div>
+    <div id="message"><p></p></div>
+
+    <!--调节播放进度-->
+    <div id="seekbar">
+        <div id="playbar">
+            <div id="rate"></div>
+        </div>
+        <div id="ratebar"></div>
+    </div>
+
+    <div id="timer">
+        <span id="curTime">00:00</span>/<span id="duration">00:00</span>
+    </div>
+
+    <div class="controls">
+        <!--调节播放音量-->
+        <div id="volume">
+            <a href="javascript:;" id="a_silent" title="静音">
+                <img src="image/volume.png">
+            </a>
+            <div id="volbar"></div>
+            <div id="slidebar"></div>
+        </div>
+
+        <div id="loop">
+            <a href="javascript:;" id="a_loop" title="循环播放">
+                <img src="image/loop.png">
+            </a>
+        </div>
+
+        <div class="butt">
+            <a href="#" id="pre"><img src="image/pre.png"></a>
+            <a href="javascript:;" id="audio_btn"><img src="image/pause.png"></a>
+            <a href="#" id="next"><img src="image/next.png"></a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
