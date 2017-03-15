@@ -2,53 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>音乐播放器</title>
     <link href="css/style.css" rel="stylesheet">
-    <script src="script/script.js"></script>
 </head>
 <body>
 <div id="container">
     <div class="audio">
-        <audio id="myAudio">
+        <audio id="myAudio" preload="auto">
             Audio player not available.
         </audio>
     </div>
-    <div id="message"><p></p></div>
+    <div id="music-list">
+        <ul>
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
 
     <!--调节播放进度-->
-    <div id="seekbar">
-        <div id="playbar">
-            <div id="rate"></div>
+    <div class="play">
+        <div id="play-progress">             <!--承载播放进度容器-->
+            <div id="playBar">               <!--总播放进度条-->
+                <div id="rate"></div>        <!--已播放进度-->
+                <div id="rateBar"></div>     <!--滑动按钮-->
+            </div>
         </div>
-        <div id="ratebar"></div>
+
+        <div id="play-time">           <!--播放时间显示-->
+            <span id="currentTime">00:00</span>/<span id="totalTime">00:00</span>
+        </div>
     </div>
 
-    <div id="timer">
-        <span id="curTime">00:00</span>/<span id="duration">00:00</span>
-    </div>
 
     <div class="controls">
-        <!--调节播放音量-->
-        <div id="volume">
-            <a href="javascript:;" id="a_silent" title="静音">
-                <img src="image/volume.png">
-            </a>
-            <div id="volbar"></div>
-            <div id="slidebar"></div>
+        <!--音量控制-->
+        <div id="volume">          <!--声音总进度条-->
+            <div id="vol-bar"></div>     <!--声音大小-->
+            <div id="slide-bar"></div>   <!--声音调节按钮-->
         </div>
 
+        <div class="sound-off"> <!--静音按钮-->
+            <a href="javascript:;" id="a-silent" title="静音"></a>
+        </div>
+
+        <!--循环控制-->
         <div id="loop">
-            <a href="javascript:;" id="a_loop" title="循环播放">
-                <img src="image/loop.png">
-            </a>
+            <a href="javascript:;" id="a-loop" title=""></a>
         </div>
 
-        <div class="butt">
-            <a href="#" id="pre"><img src="image/pre.png"></a>
-            <a href="javascript:;" id="audio_btn"><img src="image/pause.png"></a>
-            <a href="#" id="next"><img src="image/next.png"></a>
+        <!--播放控制-->
+        <div class="button">
+            <a href="#" id="pre"></a>
+            <a href="javascript:;" id="audio-btn"></a>
+            <a href="#" id="next"></a>
         </div>
     </div>
 </div>
+
+<script src="script/script.js"></script>
 </body>
 </html>

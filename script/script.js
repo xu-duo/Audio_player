@@ -1,178 +1,220 @@
 window.onload = function(){
     var myAudio = document.getElementById("myAudio"),
-        btn = document.getElementById("audio_btn"),
-        curTime = document.getElementById("curTime"),
-        total = document.getElementById("duration"),
-        play = document.getElementById("playbar"),
+        btn = document.getElementById("audio-btn"),
+        currentTime = document.getElementById("currentTime"),
+        totalTime = document.getElementById("totalTime"),
+        play = document.getElementById("playBar"),
         rate = document.getElementById("rate"),
-        ratebar = document.getElementById("ratebar"),
+        rateBar = document.getElementById("rateBar"),
         lop = document.getElementById("loop"),
-        silent = document.getElementById("a_silent"),
-        control = document.getElementsByClassName("controls")[0],
+        silent = document.getElementById("a-silent"),
         volume = document.getElementById("volume"),
-        slidebar = document.getElementById("slidebar"),
-        vol_bar = document.getElementById("volbar");
+        slideBar = document.getElementById("slide-bar"),
+        volBar = document.getElementById("vol-bar");
 
+    var dataSrc ={data: [
+        {"src":"1.mp3","title":"白玫瑰-陈奕迅","text":"1. 白玫瑰-陈奕迅"},
+        {"src":"2.mp3","title":"蔷薇刑-陈坤","text":"2. 蔷薇刑-陈坤"},
+        {"src":"3.mp3","title":"好久不见-陈奕迅","text":"3. 好久不见-陈奕迅"}
+    ]};
 
-    //播放下一首，上一首
-    var prev = document.getElementById("pre");
-    var next = document.getElementById("next");
-    var message = document.getElementById("message");
-    var text = message.getElementsByTagName("p")[0];
-    var dataSrc ={data:[{"src":"1.mp3","title":"陈奕迅-白玫瑰","text":"1.陈奕迅-白玫瑰"},
-            {"src":"2.mp3","title":"陈坤-蔷薇刑","text":"2.陈坤-蔷薇刑"},
-            {"src":"3.mp3","title":"陈奕迅-好久不见","text":"3.陈奕迅-好久不见"}]
-    };
-
+    //初始化资源
     myAudio.src = "audio/" + dataSrc.data[0].src;
     myAudio.title = dataSrc.data[0].title;
-    text.innerHTML = dataSrc.data[0].text;
 
-    var i=0;
-    next.onclick = function(){
-        if(i===2){
-            myAudio.src = "audio/" + dataSrc.data[0].src;
-            myAudio.title = dataSrc.data[0].title;
-            text.innerHTML= dataSrc.data[0].text;
-            i = -1;
-        }
-        myAudio.src = "audio/" + dataSrc.data[i+1].src;
-        myAudio.title = dataSrc.data[i+1].title;
-        text.innerHTML= dataSrc.data[i+1].text;
-        total.innerHTML = "00:00";
-        i+=1;
-        btn.getElementsByTagName("img")[0].src="image/pause.png";
-    };
-    prev.onclick = function(){
-        if(i===0){
-            myAudio.src = "audio/" + dataSrc.data[2].src;
-            myAudio.title = dataSrc.data[2].title;
-            text.innerHTML= dataSrc.data[2].text;
-            i=3;
-        }
-        myAudio.src = "audio/" + dataSrc.data[i-1].src;
-        myAudio.title = dataSrc.data[i-1].title;
-        text.innerHTML= dataSrc.data[i-1].text;
-        total.innerHTML = "00:00";
-        i-=1;
-        btn.getElementsByTagName("img")[0].src="image/pause.png";
-    };
+    //加载第一首歌总播放时间
+    totalProgress();
 
-
-    //调节音量
+    //初始化音量
     myAudio.volume = 0.6;
     var vol_ratio = myAudio.volume * volume.clientWidth + "px";
-    vol_bar.style.width = vol_ratio;
-    slidebar.style.left = vol_ratio;
-    vol_bar.style.backgroundColor = "#000";       //初始化音量
+    volBar.style.width = vol_ratio;
+    slideBar.style.left = vol_ratio;
+    volBar.style.backgroundColor = "#000";
 
-    var statu = false;        //音量进度条拖动
-    var disX;
-    var apX = [{x:slidebar.offsetLeft}];
-    slidebar.onmousedown = function(event){
-        var event = event || window.event;
-        statu = true;
-        disX = event.clientX - slidebar.offsetLeft;
-        apX.push({x:slidebar.offsetLeft});
-        return false;
-    };
-    slidebar.onmousemove = function(event){
-        if(statu){
-            var event = event || window.event;
-            var il = event.clientX - disX;
-            if(il < 0){
-                il = 0;
+    var list = document.querySelector('#music-list');
+    var texts = list.querySelectorAll('li');
+
+    var currentIndex = ' ';     //用于保存当前选中歌曲index
+
+    for(var i=0 ;i<texts.length;i++){
+        texts[i].innerHTML = dataSrc.data[i].text;
+        texts[i].index = i;
+
+        texts[i].onclick = function(){
+
+            if(this.index === currentIndex){
+                return;
+            }else{
+                for(var j=0;j<texts.length;j++){
+                    texts[j].className = '';
+                }
+
+                currentIndex = this.index;
+                this.className = "active";
+
+                myAudio.src = "audio/" + dataSrc.data[this.index].src;
+                myAudio.title = dataSrc.data[this.index].title;
+                state = false;
+
+                playState();
+                totalProgress();
             }
-            if(il > 60){
-                il = 60;
-            }
-            slidebar.style.left = il + "px";
-            vol_bar.style.width = il + "px";
-            apX.push({x:il});
-            myAudio.volume = il / volume.clientWidth;
-            return false;
         }
+    }
+
+    //播放与暂停按钮
+    var state = false;      //存储歌曲播放状态
+    btn.onclick = function(){
+        playState();
     };
-    document.onmouseup = function(){
-        statu = false;
+
+    //播放状态
+    function playState(){
+        if(state){
+            myAudio.pause();
+            btn.style.background = "url(image/icon.png) -40px -80px no-repeat";
+            state = false;
+        }else{
+            myAudio.play();
+            btn.style.background = "url(image/icon.png) 0 -80px no-repeat";
+            state = true;
+        }
+    }
+
+    //歌曲上、下一首切换
+    var prev = document.getElementById("pre");
+    var next = document.getElementById("next");
+
+    next.onclick = function(){
+        changeAudio('next');    //下一首
     };
-    volume.onclick = function(event){
+    prev.onclick = function(){
+        changeAudio('prev');    //上一首
+    };
+
+    function changeAudio(e){
+        var len = dataSrc.data.length;
+        switch (e){
+            case 'next':
+                if (currentIndex === len-1){
+                    currentIndex = 0;
+                }else{
+                    currentIndex++;
+                }
+                break;
+            case 'prev':
+                if (currentIndex === 0){
+                    currentIndex = len-1;
+                }else{
+                    currentIndex--;
+                }
+                break;
+        }
+
+        for(var j=0;j<texts.length;j++){
+            texts[j].className = '';
+        }
+
+        texts[currentIndex].className = "active";
+        myAudio.src = "audio/" + dataSrc.data[currentIndex].src;
+        myAudio.title = dataSrc.data[currentIndex].title;
+        myAudio.play();
+        btn.style.background = "url(image/icon.png) 0 -80px no-repeat";
+
+        totalProgress();
+    }
+
+
+    //音量大小控制
+    volume.onclick = function (event) {
         var event = event || window.event;
-        if(!statu){
-            var il = event.clientX - disX;
-            if(il < 0){
-                il = 0;
-            }
-            if(il > 60){
-                il = 60;
-            }
-            slidebar.style.left = il + "px";
-            vol_bar.style.width = il + "px";
-            myAudio.volume = il / volume.clientWidth;
+        myAudio.volume = (event.offsetX / volume.clientWidth);
+
+        var volBarWidth = myAudio.volume * volume.clientWidth;
+        volBar.style.width = volBarWidth + 'px';
+        slideBar.style.left =  volBarWidth + 'px';
+    };
+
+    // 播放进度控制
+    play.onclick = function (event) {
+        var event = event || window.event;
+        myAudio.currentTime  = (event.offsetX / play.clientWidth) * myAudio.duration;
+        rateChange();
+    };
+
+
+    //播放时间进度更新
+    setInterval(function() {
+        currentProgress();
+        rateChange();
+
+        //列表循环时自动播放下一首
+        if (myAudio.currentTime === myAudio.duration && !myAudio.loop) {
+            next.onclick();
+        }
+    }, 1000);
+
+    //当前播放时间转换
+    function currentProgress() {
+        var m1 = parseInt(myAudio.currentTime/60),
+            s1 = parseInt(myAudio.currentTime%60);
+        m1 = m1 < 10 ? "0"+m1 : m1;
+        s1 = s1 < 10 ? "0"+s1 : s1;
+        currentTime.innerHTML = m1+":"+s1;
+    }
+
+
+    //歌曲总播放时间转换
+    function totalProgress() {
+        myAudio.addEventListener('canplay',function(){
+            var time = myAudio.duration;
+            var m = parseInt(time/60),
+                s = parseInt(time%60);
+            m = m < 10 ? "0"+m : m;
+            s = s < 10 ? "0"+s : s;
+            totalTime.innerHTML = m+":"+s;
+        });
+    }
+
+    //进度条变动
+    function rateChange() {
+        var playBarWidth = play.clientWidth;
+        var ratio = (myAudio.currentTime / myAudio.duration )* playBarWidth;
+        rate.style.width = ratio + "px";
+        rateBar.style.left = ratio + "px";
+        rate.style.backgroundColor = "#000";
+    }
+
+
+    //设置循环，列表播放切换
+    myAudio.loop = false;
+    var loopBar = document.getElementById('a-loop');
+    lop.onclick = function(){
+        if(myAudio.loop) {
+            myAudio.loop = false;
+            loopBar.style.background = "url(image/icon.png) -80px -45px no-repeat";
+            loopBar.setAttribute('title','列表循环');
+        }else {
+            myAudio.loop = true;
+            loopBar.style.background = "url(image/icon.png) -80px 0 no-repeat";
+            loopBar.setAttribute('title','单曲循环');
         }
     };
 
 
     //设置静音
     myAudio.muted = false;
-    silent.onclick = function(){
+    silent.addEventListener('click',function(){
         if(myAudio.muted){
             myAudio.muted = false;
-            silent.style.opacity = 1;
-            silent.getElementsByTagName("img")[0].src = "image/volume.png";
+            silent.style.background = "url(image/icon.png) 0 0 no-repeat";
         }else {
             myAudio.muted = true;
-            silent.style.opacity = 0.3;
-            silent.getElementsByTagName("img")[0].src = "image/silent.png";
+            silent.style.background = "url(image/icon.png) -40px 0 no-repeat";
         }
-    };
+    });
 
-    //设置循环
-    myAudio.loop = true;
-    lop.onclick = function(){
-        if(myAudio.loop) {
-            myAudio.loop = false;
-            lop.style.opacity = 0.4;
-        }else {
-            myAudio.loop = true;
-            lop.style.opacity = 1;
-        }
-    };
-
-    //播放与暂停按钮
-    btn.onclick = function() {
-        if(myAudio.paused) {
-            myAudio.play();
-            btn.getElementsByTagName("img")[0].src="image/play.png";
-        }else{
-            myAudio.pause();
-            btn.getElementsByTagName("img")[0].src="image/pause.png";
-        }
-        var duration1 = myAudio.duration;
-        total.innerHTML = progress(duration1);
-    };
-
-
-    //播放时间进度
-    setInterval(function() {
-        var curTime1 = myAudio.currentTime;
-        curTime.innerHTML = progress(curTime1);
-        rates();
-    }, 1000);
-
-    //时间转换
-    function progress(time) {
-        var m = parseInt(time/60),
-            s = parseInt(time%60);
-        m = m < 10 ? "0"+m : m;
-        s = s < 10 ? "0"+s : s;
-        return m+":"+s;
-    }
-
-    function rates() {
-        var ratio = myAudio.currentTime / myAudio.duration * 100 + "%";
-        rate.style.width = ratio;
-        ratebar.style.left = ratio;
-        rate.style.backgroundColor = "#000";
-    }
 };
+
+
